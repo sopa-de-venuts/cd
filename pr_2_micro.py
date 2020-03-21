@@ -43,39 +43,38 @@ def parse_time (data, filename):
     data[time] = [data[time][x].strftime('%H:%M') for x in range(len(data[time]))]
     data[time] = filename[4:6]+'-'+filename[6:8]+' '+data[time][:]
     return time
+
 data = pd.DataFrame()
-title = 'CIBA, '+filenames[0][6:8]+'/'+filenames[0][4:6]+'/'+filenames[0][0:4]+'-'+\
-filenames[-1][6:8]+'/'+filenames[-1][4:6]+'/'+filenames[-1][0:4]
 for filename in filenames:
-    data0 = pd.DataFrame()
+    title = 'CIBA, '+filenames[6:8]+'/'+filenames[4:6]+'/'+filenames[0:4]
 
     if 'cov.xls' in filename:
         for sheet in heights:
             file = pd.read_excel('03_2003/'+filename, sheet, usecols='A:BR')
             file.columns = file.columns+' '+sheet
-            data0 = pd.concat([file, data0], axis=1, sort=False)
-        time = parse_time(data0,filename)
+            data = pd.concat([file, data0], axis=1, sort=False)
+        time = parse_time(data,filename)
     else:
-        data0 = pd.read_excel('03_2003/'+filename, usecols='A:BR')
-        data0 = data0.dropna(how='any')
-        time = parse_time (data0,filename)
-    data = pd.concat([data,data0], axis=0, sort=False)
+        data = pd.read_excel('03_2003/'+filename, usecols='A:BR')
+        data = data.dropna(how='any')
+        time = parse_time (data,filename)
 
-if 'cov.xls' in filename:
-    variable_expr = ['Ecinetica', 'U\*', 'w\'t\'.*',]
-    y_label = ['$E_k$', '$U^*$', '$w\'t\'[K\cdot m/s]$']
-else:
-    variable_expr = [r'MOD.*', r'Dir.*', r'V\d+.*', r'dir\d+.*', r'T son.*']
-    y_label = [r'MOD (sonic) $[m/s]$', r'Direccio (sonic) $[deg]$', r'MOD $[m/s]$', r'Direccio $[deg]$', r'Temperatura $[^oC]$']
 
-for expr, y_lab in zip(variable_expr, y_label):
-    columns, names = column_name_finder (expr, data.columns)
-    fig, ax = plt.subplots(figsize = (13,8))
-    print(names)
-    for i in names:
-        ax.plot(data[time][:],data[i][:], label=i)
-    plt.ylabel(y_lab, fontsize=label_font_s)
-    plt.xlabel('hora [mm-dd hh:mm]', fontsize=label_font_s)
-    plt_things()
-    plt.savefig('./figures/'+expr[:4]+'_'+filenames[0][6:8]+'_'+filenames[-1][6:8]+'.eps')
-#plt.show()
+    if 'cov.xls' in filename:
+        variable_expr = ['Ecinetica', 'U\*', 'w\'t\'.*',]
+        y_label = ['$E_k$', '$U^*$', '$w\'t\'[K\cdot m/s]$']
+    else:
+        variable_expr = [r'MOD.*', r'Dir.*', r'V\d+.*', r'dir\d+.*', r'T son.*']
+        y_label = [r'MOD (sonic) $[m/s]$', r'Direccio (sonic) $[deg]$', r'MOD $[m/s]$', r'Direccio $[deg]$', r'Temperatura $[^oC]$']
+
+    for expr, y_lab in zip(variable_expr, y_label):
+        columns, names = column_name_finder (expr, data.columns)
+        fig, ax = plt.subplots(figsize = (13,8))
+        print(names)
+        for i in names:
+            ax.plot(data[time][:],data[i][:], label=i)
+        plt.ylabel(y_lab, fontsize=label_font_s)
+        plt.xlabel('hora [mm-dd hh:mm]', fontsize=label_font_s)
+        plt_things()
+        plt.savefig('./figures/'+expr[:4]+'_'+filename+'.eps')
+        #plt.show()
