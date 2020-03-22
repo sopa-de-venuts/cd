@@ -1,4 +1,3 @@
-
 import re
 import datetime
 import numpy as np
@@ -41,18 +40,19 @@ def plt_things():
 def parse_time (data, filename):
     time = data.columns[0]
     data[time] = [data[time][x].strftime('%H:%M') for x in range(len(data[time]))]
-    data[time] = filename[4:6]+'-'+filename[6:8]+' '+data[time][:]
+    data[time] = filename[6:8]+'/'+filename[4:6]+' '+data[time][:]
     return time
 
-data = pd.DataFrame()
+
 for filename in filenames:
-    title = 'CIBA, '+filenames[6:8]+'/'+filenames[4:6]+'/'+filenames[0:4]
+    data = pd.DataFrame()
+    title = 'CIBA, '+filename[6:8]+'/'+filename[4:6]+'/'+filename[0:4]
 
     if 'cov.xls' in filename:
         for sheet in heights:
             file = pd.read_excel('03_2003/'+filename, sheet, usecols='A:BR')
             file.columns = file.columns+' '+sheet
-            data = pd.concat([file, data0], axis=1, sort=False)
+            data = pd.concat([file, data], axis=1, sort=False)
         time = parse_time(data,filename)
     else:
         data = pd.read_excel('03_2003/'+filename, usecols='A:BR')
